@@ -43,28 +43,28 @@ contract Crowdsale {
     }
 
     function hasFailed() returns(bool) {
-		return now > end && tokensSold < softcap;
+        return now > end && tokensSold < softcap;
 	}
 
 	function hasFinished() returns(bool) {
-		return now > end && tokensSold > softcap;
+        return now > end && tokensSold > softcap;
 	}
 
     function () payable {
-		if (now < start) {
+        if (now < start) {
             revert();
         }
-		if (now > end) {
+        if (now > end) {
             revert();
         }
-		if (msg.value == 0) {
+        if (msg.value == 0) {
             revert();
         }
-		
-		uint256 weiAmount = msg.value;
-		// keep track of ETH investments
-		balances[msg.sender] += weiAmount;
-		uint256 tokenCount = rate * weiAmount;
-		tokenContract.createToken(msg.sender, tokenCount);
-	}
+
+        uint256 weiAmount = msg.value;
+        // keep track of ETH investments
+        balances[msg.sender] += weiAmount;
+        uint256 tokenCount = rate * weiAmount;
+        tokenContract.createToken(msg.sender, tokenCount);
+    }
 }
