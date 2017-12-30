@@ -1,4 +1,4 @@
-Token constructor parameters:
+Constructor parameters:
 
 * `owner` -- _admin_ of the contract;
 * `start` -- start date of the contract;
