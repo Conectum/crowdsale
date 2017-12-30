@@ -5,8 +5,10 @@ import './StandardToken.sol';
 contract Token is StandardToken {
     using SafeMath for uint256;
 
-    // TODO: add name, decimals, symbol
-    uint256 constant DECIMALS = 18;
+    // metadata
+    string public constant name = "Conectum Token";
+    string public constant symbol = "COM";
+    uint256 constant decimals = 18;
 
     uint256 start;
     uint256 end;
@@ -35,8 +37,8 @@ contract Token is StandardToken {
         uint256 _softcap, 
         uint256 _hardcap,
         address _wallet,
-        uint256 _rate) {
-        
+        uint256 _rate) public 
+    {
         start = _start;
         end = _end;
         reserved = _reserved;
@@ -48,7 +50,7 @@ contract Token is StandardToken {
         totalSupply = reserved;
     }
 
-    function () payable {
+    function () public payable {
         if (now < start) {
             revert();
         }
@@ -69,12 +71,12 @@ contract Token is StandardToken {
         createTokens(msg.sender, tokenCount);
     }
 
-    function createTokens(address _for, uint256 amount) {
+    function createTokens(address _for, uint256 amount) private {
         balances[_for] = balances[_for].add(amount);
         totalSupply = totalSupply.add(amount);
     }
 
-    function finalize() {
+    function finalize() public {
         if (icoFinished) {
             revert();
         }
@@ -91,7 +93,7 @@ contract Token is StandardToken {
         }
     }
 
-    function refund() {
+    function refund() public {
         if (!icoFinished) {
             revert();
         }
