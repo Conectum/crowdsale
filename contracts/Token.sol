@@ -48,6 +48,7 @@ contract Token is StandardToken {
         address _wallet,
         uint256 _rate) public 
     {
+        require(_start < _end);
         owner = _owner;
         start = _start;
         end = _end;
