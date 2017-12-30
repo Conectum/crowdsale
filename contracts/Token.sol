@@ -71,20 +71,22 @@ contract Token is StandardToken {
             revert();
         }
         uint256 weiAmount = msg.value;
-        // keep track of ETH investments
-        icoBalances[msg.sender] += weiAmount;
-        uint256 tokenCount = rate * weiAmount;
-        if (tokensSold + tokenCount > hardcap) {
+        uint256 tokenCount = rate.mul(weiAmount);
+        uint256 checkedCount = tokensSold.add(tokenCount);
+        if (checkedCount > hardcap) {
             revert();
         }
+        // keep track of ETH investments
+        icoBalances[msg.sender] += weiAmount;
         tokensSold += tokenCount;
         createTokens(msg.sender, tokenCount);
         CreateCOM(msg.sender, tokenCount);
     }
 
     function createTokens(address _for, uint256 amount) private {
-        balances[_for] = balances[_for].add(amount);
-        totalSupply = totalSupply.add(amount);
+        // no need for safe adding, since hardcap controls how many tokens are created
+        balances[_for] += amount;
+        totalSupply += amount;
     }
 
     function finalize() public onlyOwner {
