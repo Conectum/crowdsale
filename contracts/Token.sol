@@ -29,7 +29,9 @@ contract Token is StandardToken {
     // who donated how much ETH
     mapping (address => uint256) icoBalances;
 
-    event FundTransfer(address receiver, uint amount);
+    event FundTransfer(address receiver, uint256 amount);
+    event Refund(address receiver, uint256 amount);
+    event CreateCOM(address receiver, uint256 amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner);
@@ -77,6 +79,7 @@ contract Token is StandardToken {
         }
         tokensSold += tokenCount;
         createTokens(msg.sender, tokenCount);
+        CreateCOM(msg.sender, tokenCount);
     }
 
     function createTokens(address _for, uint256 amount) private {
@@ -111,6 +114,6 @@ contract Token is StandardToken {
         }
         icoBalances[msg.sender] = 0;
         msg.sender.transfer(refundAmount);
-        FundTransfer(msg.sender, refundAmount);
+        Refund(msg.sender, refundAmount);
     }
 }
