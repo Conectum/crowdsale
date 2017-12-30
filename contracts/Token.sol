@@ -24,13 +24,20 @@ contract Token is StandardToken {
 
     // multi-sig wallet to store raised funds at the end of the ICO
     address wallet;
+    address owner;
 
     // who donated how much ETH
     mapping (address => uint256) icoBalances;
 
     event FundTransfer(address receiver, uint amount);
 
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
     function Token(
+        address _owner,
         uint256 _start,
         uint256 _end,
         uint256 _reserved, 
@@ -39,6 +46,7 @@ contract Token is StandardToken {
         address _wallet,
         uint256 _rate) public 
     {
+        owner = _owner;
         start = _start;
         end = _end;
         reserved = _reserved;
@@ -76,7 +84,7 @@ contract Token is StandardToken {
         totalSupply = totalSupply.add(amount);
     }
 
-    function finalize() public {
+    function finalize() public onlyOwner {
         if (icoFinished) {
             revert();
         }
