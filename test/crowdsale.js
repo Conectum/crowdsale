@@ -287,9 +287,66 @@ contract("Crowdsale", (accounts) => {
       await crowdsale.finalize({from: accounts[3]});
       assert(false, "should have failed");
     } catch(error) {
-      return utils.ensureException(error);
+      utils.ensureException(error);
     };
-    await crowdsale.finalize({from: accounts[0]});
+    await crowdsale.finalize();
   });
 
+  /*
+  Token miniting related.
+  */
+  it("should own the token contract whilst active", async() => {
+    let crowdsale = await Crowdsale.new(
+      now(),
+      utils.eth(2),
+      utils.eth(3),
+      accounts[3],
+      [min(10), min(10), min(10)],
+      [min(10), min(10)],
+      [1000, 750, 500]
+    );
+    let tokenAddress = await crowdsale.token();
+    let token = await Token.at(tokenAddress);
+    assert.equal(await crowdsale.address, await token.owner());
+  });
+
+  it("should transfer the ownership of the tokens contract to the owner of the crowdsale contract", async() => {
+    let crowdsale = await Crowdsale.new(
+      now(),
+      utils.eth(2),
+      utils.eth(3),
+      accounts[3],
+      [min(10), min(10), min(10)],
+      [min(10), min(10)],
+      [1000, 750, 500]
+    );
+    let tokenAddress = await crowdsale.token();
+    let token = await Token.at(tokenAddress);
+    await crowdsale.sendTransaction({value: utils.eth(1), from: accounts[1]});
+    utils.increaseTime(min(60));
+    await crowdsale.finalize();
+    assert.equal(await token.owner(), accounts[0]);
+  });
+
+  it("should not be possible to mint new tokens after the crowdsale was finalized", async() => {
+    let crowdsale = await Crowdsale.new(
+      now(),
+      utils.eth(2),
+      utils.eth(3),
+      accounts[3],
+      [min(10), min(10), min(10)],
+      [min(10), min(10)],
+      [1000, 750, 500]
+    );
+    let tokenAddress = await crowdsale.token();
+    let token = await Token.at(tokenAddress);
+    utils.increaseTime(min(60));
+    await crowdsale.finalize();
+    try {
+      await token.mint(accounts[2], 1000);
+      assert(false, "should revert");
+    } catch (error) {
+      utils.ensureException(error);
+    }
+  });
 });

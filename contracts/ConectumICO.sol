@@ -88,7 +88,6 @@ contract ConectumICO is Ownable {
     hardcap = _hardcap;
 
     vault = new RefundVault(_wallet);
-    // TODO: when the crowdsale is finish the ownership of the token contract should be transfered to the owner of the crowdsale contract.
     token = new COMToken();
   }
 
@@ -217,6 +216,7 @@ contract ConectumICO is Ownable {
       vault.enableRefunds();
     }
     token.finishMinting();
+    token.transferOwnership(owner);
   }
 
   function goalReached() public view returns (bool) {
