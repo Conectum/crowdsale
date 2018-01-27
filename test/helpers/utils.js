@@ -21,10 +21,24 @@ const increaseTime = function(deltaTime) {
     }
 }
 
+// helper ETH amounts
+const eth = (amount) => web3.toWei(amount, 'ether');
+
+const duration = {
+  seconds: function (val) { return val; },
+  minutes: function (val) { return val * this.seconds(60); },
+  hours: function (val) { return val * this.minutes(60); },
+  days: function (val) { return val * this.hours(24); },
+  weeks: function (val) { return val * this.days(7); },
+  years: function (val) { return val * this.days(365); },
+};
+
 module.exports = {
     zeroAddress: '0x0000000000000000000000000000000000000000',
     isException: isException,
     ensureException: ensureException,
     timeout: timeout,
-    increaseTime: increaseTime
+    increaseTime: increaseTime,
+    eth: eth,
+    duration: duration
 };

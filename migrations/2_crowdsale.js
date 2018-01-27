@@ -1,4 +1,5 @@
-var Token = artifacts.require("./Token.sol");
+var Token = artifacts.require('COMToken');
+var Crowdsale = artifacts.require('ConectumICO');
 
 const duration = {
   seconds: function (val) { return val; },
@@ -12,26 +13,14 @@ const duration = {
 const latestTime = () => web3.eth.getBlock('latest').timestamp;
 
 module.exports = function(deployer, network, accounts) {
-
-    const rate = 100;
-    const startTime = latestTime();
-    const endTime = startTime + duration.days(1);
-    const reserved = 100 * 10**18;
-    const softCap = 300 * 10**18;
-    const hardCap = 800 * 10**18;
-
-    var owner;
-    var wallet;
-    if (network == 'development') {
-        owner = accounts[0];
-        wallet = accounts[0];
-    } else if (network == 'kovan') {
-        owner = '0x0';
-        wallet = '0x0';
-    }
-
-
-    deployer.deploy(Token, owner, startTime, endTime, reserved, softCap, hardCap, wallet, rate).then(() => {
-        console.log(Token.address);
-    });
-};
+  deployer.deploy(
+    Crowdsale,
+    latestTime(),
+    1 * 10**18,
+    2 * 10**18,
+    accounts[0],
+    [duration.minutes(30), duration.minutes(10), duration.minutes(10)],
+    [duration.minutes(1), duration.minutes(1)],
+    [1000, 750, 500]
+  );
+}
