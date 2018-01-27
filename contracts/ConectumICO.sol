@@ -146,6 +146,10 @@ contract ConectumICO is Ownable {
   }
 
   function setReferrence(address participant, address referrer) onlyOwner public {
+    // make sure that the `participant` and `referrer` values were passed
+    require(participant != address(0));
+    require(referrer != address(0));
+    // there referer can only be set once
     require(!refedBy[participant].isSet);
     refedBy[participant] = Referrer(referrer, true);
   }
