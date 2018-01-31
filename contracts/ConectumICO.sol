@@ -88,11 +88,16 @@ contract ConectumICO is Ownable {
     uint[] _stageBreaks,
     uint[] _stageRates) public {
 
+    stageRates = _stageRates;
     stageLengths = _stageLengths;
     stageBreaks = _stageBreaks;
-    // we need the final 0 to keep the arrays of same size. Makes the bellow loop simple.
-    stageBreaks.push(0);
-    stageRates = _stageRates;
+    // extra padding, to make the `stageStart` and `stageEnd` logic simple
+    if (stageBreaks.length + 1 == stageLengths.length) {
+      stageBreaks.push(0);
+    }
+
+    require(stageLengths.length == stageBreaks.length);
+    require(stageBreaks.length == stageRates.length);
 
     uint stageStart = startTime;
     uint stageEnd;
