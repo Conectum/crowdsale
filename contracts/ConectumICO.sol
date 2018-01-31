@@ -11,10 +11,10 @@ contract ConectumICO is Ownable {
 
   struct Referrer {
     address addr;
-    // NOTE: default is false
     bool isSet;
   }
 
+  // indexes of different ico stages, mainly for code readability purposes
   uint constant StrongBelieversStage = 0;
   uint constant EarlyAdaptersStage = 1;
   uint constant MainStage = 2;
@@ -26,22 +26,26 @@ contract ConectumICO is Ownable {
   // ETH/COM exchange rates of every crowdsale stage
   uint[] stageRates;
 
+  // what time every stage starts
   uint[] stageStarts;
+  // what time every stage ends
   uint[] stageEnds;
 
-  // is the ICO finished?
+  // is the ICO finished by the owners?
   bool public isFinalized = false;
 
+  // keeps track of funds raised in wei (1 ether = 10^18 wei)
   uint public weiRaised;
   // minimum required amount of wei to be raised in order for this ICO to be considered successful
   uint public softcap;
-  // maximum amount of wei that is planned to raised
+  // maximum amount of wei that is planned to be raised
   uint public hardcap;
 
+  // users that were referred by others
   mapping (address => Referrer) public refedBy;
   uint constant refBonusPct = 10;
 
-  // refund vault used to hold funds while crowdsale is running
+  // used to hold funds while crowdsale is running
   RefundVault public vault;
 
   // The token being sold
@@ -56,10 +60,25 @@ contract ConectumICO is Ownable {
    */
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint value, uint amount);
   // fired when referrer of a recent contributor is rewarded with a bonus
+
+  /**
+   * event for referrer bonus tokens minting
+   * @param referrer who referred current purchaser of the tokens
+   * @param bonus amount of tokens referrer was awarded with
+   */
   event GiveReferrerBonus(address referrer, uint bonus);
-  // fired when the crowdsale is finalized by the owner
+  // event for crowdsale finalization by the owners
   event Finalized();
 
+  /**
+   * @param startTime when ICO should start
+   * @param _softcap in wei
+   * @param _hardcap in wei
+   * @param _wallet that will receive successful ICO funds
+   * @param _stageLengths in seconds
+   * @param _stageBreaks in seconds
+   * @param _stageRates -- ETH/COM
+   */
   function ConectumICO(
     uint startTime,
     uint _softcap,
@@ -91,6 +110,7 @@ contract ConectumICO is Ownable {
     token = new COMToken();
   }
 
+  // get index of the ICO stage we are in
   function getStage() public view returns(uint) {
     for (uint idx = 0; idx < stageStarts.length; idx++) {
       uint start = stageStarts[idx];
@@ -102,12 +122,13 @@ contract ConectumICO is Ownable {
     revert();
   }
 
-  // fallback function can be used to buy tokens
   function () external payable {
     buyTokens(msg.sender);
   }
 
-  // low level token purchase function
+  /* Low level token purchase function
+   * @param beneficiary who should receive the tokens
+   */
   function buyTokens(address beneficiary) public payable {
     require(beneficiary != address(0));
     require(validPurchase());
@@ -117,18 +138,17 @@ contract ConectumICO is Ownable {
     // calculate token amount to be created
     uint tokens = getTokenAmount(weiAmount);
 
-    // update state
     weiRaised = weiRaised.add(weiAmount);
 
     token.mint(beneficiary, tokens);
     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
 
-    // if we are in the referral mode
+    // if we are in the referral stage aka StrongBelieversStage
     if (inReferralStage() && refedBy[msg.sender].isSet) {
-      // calculate referrer bonus
+      // calculate referrer's bonus
       address referrer = refedBy[msg.sender].addr;
-
       uint bonus = tokens * refBonusPct / 100;
+
       token.mint(referrer, bonus);
       GiveReferrerBonus(referrer, bonus);
     }
@@ -145,23 +165,18 @@ contract ConectumICO is Ownable {
   }
 
   function setReferrence(address participant, address referrer) onlyOwner public {
-    // make sure that the `participant` and `referrer` values were passed
     require(participant != address(0));
     require(referrer != address(0));
-    // there referer can only be set once
+    // the referer can only be set once
     require(!refedBy[participant].isSet);
     refedBy[participant] = Referrer(referrer, true);
-  }
-
-  function getReferrer(address participant) public view returns(address) {
-    require(refedBy[participant].isSet);
-    return refedBy[participant].addr;
   }
 
   function forwardFunds() internal {
     vault.deposit.value(msg.value)(msg.sender);
   }
 
+  // Convert Wei to COM tokens
   function getTokenAmount(uint weiAmount) internal view returns(uint) {
     uint stage = getStage();
     uint rate = stageRates[stage];
@@ -175,11 +190,12 @@ contract ConectumICO is Ownable {
     return isActive() && nonZeroPurchase && withinCap && !isFinalized;
   }
 
+  // @return true if timewise the ICO has ended
   function hasEnded() public view returns(bool) {
     return now > stageEnds[stageEnds.length - 1];
   }
 
-  // is the crowdsale in an active fund raising stage
+  // @return true if ICO is in one of its ICO stages
   function isActive() public view returns(bool){
     uint stage = getStage();
     uint start = stageStarts[stage];
@@ -188,7 +204,7 @@ contract ConectumICO is Ownable {
   }
 
   /**
-   * Must be called after crowdsale ends, to do some extra finalization
+   * Must be called after the crowdsale ends, to do some extra finalization
    * work. Calls the contract's finalization function.
    */
   function finalize() onlyOwner public {
