@@ -172,19 +172,11 @@ contract ConectumICO is Ownable {
   function validPurchase() internal view returns (bool) {
     bool nonZeroPurchase = msg.value != 0;
     bool withinCap = weiRaised.add(msg.value) <= hardcap;
-    return isActive() && nonZeroPurchase && withinCap;
+    return isActive() && nonZeroPurchase && withinCap && !isFinalized;
   }
 
   function hasEnded() public view returns(bool) {
-    if (weiRaised >= hardcap) {
-      return true;
-    }
-
-    if (now > stageEnds[stageEnds.length - 1]) {
-      return true;
-    }
-
-    return false;
+    return now > stageEnds[stageEnds.length - 1];
   }
 
   // is the crowdsale in an active fund raising stage
@@ -192,7 +184,7 @@ contract ConectumICO is Ownable {
     uint stage = getStage();
     uint start = stageStarts[stage];
     uint end = stageEnds[stage];
-    return now >= start && now <= end && !isFinalized;
+    return now >= start && now <= end;
   }
 
   /**
