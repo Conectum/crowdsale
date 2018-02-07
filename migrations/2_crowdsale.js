@@ -15,7 +15,7 @@ const latestTime = () => web3.eth.getBlock('latest').timestamp;
 module.exports = function(deployer, network, accounts) {
   deployer.deploy(
     Crowdsale,
-    latestTime(),
+    latestTime() + duration.weeks(1),
     1 * 10**18,
     2 * 10**18,
     accounts[0],
