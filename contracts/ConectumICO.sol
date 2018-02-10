@@ -97,7 +97,7 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
     }
 
     function createTokenContract() internal returns (MintableToken) {
-        return new COMToken();
+        return new COMToken(endTime);
     }
 
     function calcEndTime(
