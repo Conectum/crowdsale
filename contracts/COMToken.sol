@@ -8,17 +8,10 @@ contract COMToken is MintableToken {
   string public constant symbol = "COM";
   uint8 public constant decimals = 18;
 
-  uint releaseStart;
-
   mapping (address => TokenVesting) public vesting;
   mapping (address => TokenTimelock) public timelock;
 
-  function COMToken (uint _releaseStart) public {
-      require(now <= _releaseStart);
-      releaseStart = _releaseStart;
-  }
-
-  function vest(address to, uint amount, uint duration) onlyOwner public {
+  function vest(address to, uint amount, uint releaseStart, uint duration) onlyOwner public {
       require(to != address(0));
       vesting[to] = new TokenVesting(to, releaseStart, 0, duration, false);
       mint(address(vesting[to]), amount);

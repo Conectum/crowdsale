@@ -28,7 +28,7 @@ contract("Token", (accounts) => {
 
     describe('vesting', () => {
         it('should not release before start', async() => {
-            this.token.vest(accounts[1], 1000, duration.years(1));
+            this.token.vest(accounts[1], 1000, this.releaseDate, duration.years(1));
 
             try {
                 await this.token.releaseVested({from: accounts[1]});
@@ -40,7 +40,7 @@ contract("Token", (accounts) => {
 
         it('should release linearly', async() => {
             var amount;
-            await this.token.vest(accounts[1], 1000, duration.years(1));
+            await this.token.vest(accounts[1], 1000, this.releaseDate, duration.years(1));
             await increaseTimeTo(this.q1);
             await this.token.releaseVested({from: accounts[1]});
             amount = (await this.token.balanceOf.call(accounts[1])).toNumber();

@@ -38,8 +38,6 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
     // what time every stage ends
     uint[] stageEnds;
 
-    // minimum amount of wei that is planned to be raised
-    uint public softcap;
     // maximum amount of wei that is planned to be raised
     uint public hardcap;
 
@@ -92,12 +90,11 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
           stageStart = stageEnd + stageBreaks[idx];
         }
 
-        softcap = _softcap;
         hardcap = _hardcap;
     }
 
     function createTokenContract() internal returns (MintableToken) {
-        return new COMToken(endTime);
+        return new COMToken();
     }
 
     function calcEndTime(
@@ -178,13 +175,5 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
         super.finalization();
         token.finishMinting();
         token.transferOwnership(owner);
-    }
-
-    function getWeiRaised() public view returns(uint) {
-        return weiRaised;
-    }
-
-    function getGoal() public view returns(uint) {
-        return goal;
     }
 } 
