@@ -159,7 +159,7 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
     function validPurchase() internal view returns (bool) {
         bool withinCap = weiRaised.add(msg.value) <= hardcap;
         bool aboveMinInvestment = msg.value >= minInvest;
-        return isActive() && withinCap && aboveMinInvestment && super.validPurchase();
+        return isActive() && withinCap && aboveMinInvestment && !isFinalized && super.validPurchase();
     }
 
     // @return true if ICO is in one of its ICO stages

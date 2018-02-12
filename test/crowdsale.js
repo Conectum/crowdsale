@@ -153,6 +153,19 @@ contract("Crowdsale", (accounts) => {
               return utils.ensureException(error);
             }
         });
+
+        it("should not accept investments if finalized", async() => {
+            await increaseTimeTo(this.startTime + duration.days(1));
+            await this.crowdsale.sendTransaction({value: ether(0.5), from: this.alice});
+            await increaseTimeTo(this.endTime + duration.days(1));
+            await this.crowdsale.finalize();
+            try {
+                await this.crowdsale.sendTransaction({value: ether(1), from: this.alice});
+                assert(false, "should revert");
+            } catch (error) {
+                return utils.ensureException(error);
+            }
+        });
     });
 
     describe('refunds', () => {
