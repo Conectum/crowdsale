@@ -41,6 +41,8 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
     // maximum amount of wei that is planned to be raised
     uint public hardcap;
 
+    uint constant minInvest = 0.2 ether;
+
     // users that were referred by others
     mapping (address => Referrer) public referredBy;
     uint constant refBonusPct = 10;
@@ -156,7 +158,8 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
     // @return true if the transaction can buy tokens
     function validPurchase() internal view returns (bool) {
         bool withinCap = weiRaised.add(msg.value) <= hardcap;
-        return isActive() && withinCap && super.validPurchase();
+        bool aboveMinInvestment = msg.value >= minInvest;
+        return isActive() && withinCap && aboveMinInvestment && super.validPurchase();
     }
 
     // @return true if ICO is in one of its ICO stages

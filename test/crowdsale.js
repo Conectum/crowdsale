@@ -113,6 +113,16 @@ contract("Crowdsale", (accounts) => {
     });
 
     describe('investing', () => {
+        it("should not accept below min investment", async() => {
+            await increaseTimeTo(this.startTime);
+            try {
+                await this.crowdsale.sendTransaction({value: ether(0.01)});
+                assert(false, "should revert");
+            } catch (error) {
+                return utils.ensureException(error);
+            }
+        });
+
         it("should not accept new investments during breaks between stages", async() => {
             await increaseTimeTo(this.stageOneEnd + duration.days(1));
             try {
