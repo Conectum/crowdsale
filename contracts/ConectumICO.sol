@@ -20,7 +20,7 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
 
     // indexes of different ico stages, mainly for code readability purposes
     uint constant StrongBelieversStage = 0;
-    uint constant EarlyAdaptersStage = 1;
+    uint constant EarlyAdoptersStage = 1;
     uint constant MainStage = 2;
 
     // length of every crowdsale stage
