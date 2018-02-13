@@ -28,7 +28,7 @@ contract("Token", (accounts) => {
 
     describe('vesting', () => {
         it('should not release before start', async() => {
-            this.token.vest(accounts[1], 1000, this.releaseDate, duration.years(1));
+            await this.token.vest(accounts[1], 1000, this.releaseDate, duration.years(1));
 
             try {
                 await this.token.releaseVested({from: accounts[1]});
