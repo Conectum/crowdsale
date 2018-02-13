@@ -110,6 +110,18 @@ contract("Crowdsale", (accounts) => {
                 return utils.ensureException(error);
             }
         });
+
+        it("should only work during the Strong Believers stage", async() => {
+            await increaseTimeTo(this.stageOneEnd + duration.days(1));
+            await this.crowdsale.incStage();
+            await increaseTimeTo(this.stageTwoStart);
+            try {
+                await this.crowdsale.setReference(this.alice, this.bob);
+                assert(false, "should revert");
+            } catch (error) {
+                return utils.ensureException(error);
+            }
+        });
     });
 
     describe('investing', () => {

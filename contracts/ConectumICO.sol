@@ -144,6 +144,8 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
     function setReference(address participant, address referrer) public onlyOwner {
         require(participant != address(0));
         require(referrer != address(0));
+        require(isActive());
+        require(stage == 0);
         // the referer can only be set once
         require(!referredBy[participant].isSet);
         referredBy[participant] = Referrer(referrer, true);
