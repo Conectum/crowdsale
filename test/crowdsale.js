@@ -77,7 +77,7 @@ contract("Crowdsale", (accounts) => {
     describe('referral system', async() => {
         it("should assign 10% of the token sale to the referrer", async() => {
             await increaseTimeTo(this.startTime);
-            await this.crowdsale.setReferrence(this.alice, this.bob);
+            await this.crowdsale.setReference(this.alice, this.bob);
             await this.crowdsale.sendTransaction({value: ether(1), from: this.alice});
             let pBalance = await this.token.balanceOf.call(this.alice);
             let rBalance = await this.token.balanceOf.call(this.bob);
@@ -87,7 +87,7 @@ contract("Crowdsale", (accounts) => {
 
         it("should not assign 10% of the token sale to the referrer post stage 1", async() => {
             await increaseTimeTo(this.startTime);
-            await this.crowdsale.setReferrence(this.alice, this.bob);
+            await this.crowdsale.setReference(this.alice, this.bob);
             await increaseTimeTo(this.stageOneEnd + duration.days(1));
             await this.crowdsale.incStage();
             await increaseTimeTo(this.stageTwoStart);
@@ -101,10 +101,10 @@ contract("Crowdsale", (accounts) => {
 
         it("should not let override the previous reference", async() => {
             await increaseTimeTo(this.startTime);
-            await this.crowdsale.setReferrence(this.alice, this.bob);
+            await this.crowdsale.setReference(this.alice, this.bob);
             let referrer2 = this.eve;
             try {
-                await this.crowdsale.setReferrence(this.alice, this.eve);
+                await this.crowdsale.setReference(this.alice, this.eve);
                 assert(false, "should revert");
             } catch (error) {
                 return utils.ensureException(error);
