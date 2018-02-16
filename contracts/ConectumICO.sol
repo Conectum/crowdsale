@@ -4,13 +4,13 @@ import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/crowdsale/RefundVault.sol';
 import 'zeppelin-solidity/contracts/crowdsale/Crowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/RefundableCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol';
+import 'zeppelin-solidity/contracts/crowdsale/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
 import './COMToken.sol';
 
-contract ConectumICO is Ownable, RefundableCrowdsale {
+contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
     using SafeMath for uint;
 
     struct Referrer {
@@ -37,9 +37,6 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
     uint[] stageStarts;
     // what time every stage ends
     uint[] stageEnds;
-
-    // maximum amount of wei that is planned to be raised
-    uint public hardcap;
 
     uint constant minInvest = 0.2 ether;
 
@@ -70,33 +67,32 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
         address _wallet,
         uint[] _stageLengths,
         uint[] _stageBreaks,
-        uint[] _stageRates) public
+        uint[] _stageRates,
+        MintableToken _token
+    ) public
+        CappedCrowdsale(_hardcap)
         FinalizableCrowdsale()
         RefundableCrowdsale(_softcap)
-        Crowdsale(_startTime, calcEndTime(_startTime, _stageLengths, _stageBreaks), _stageRates[0], _wallet)
+        Crowdsale(_startTime, calcEndTime(_startTime, _stageLengths, _stageBreaks), _stageRates[0], _wallet, _token)
     {
+        require(_stageLengths.length == _stageRates.length);
+        require(_stageBreaks.length + 1 == _stageLengths.length);
+
         stageRates = _stageRates;
         stageLengths = _stageLengths;
         stageBreaks = _stageBreaks;
 
-        require(stageLengths.length == stageRates.length);
-        require(stageBreaks.length + 1 == stageLengths.length);
-        stageBreaks.push(0);
+        stageStarts = [
+            uint(startTime),
+            startTime + _stageLengths[0] + _stageBreaks[0],
+            startTime + _stageLengths[0] + _stageBreaks[0] + _stageLengths[1] + _stageBreaks[1]
+        ];
 
-        uint stageStart = startTime;
-        uint stageEnd;
-        for (uint idx = 0; idx < stageLengths.length; idx++) {
-          stageEnd = stageStart + stageLengths[idx];
-          stageStarts.push(stageStart);
-          stageEnds.push(stageEnd);
-          stageStart = stageEnd + stageBreaks[idx];
-        }
-
-        hardcap = _hardcap;
-    }
-
-    function createTokenContract() internal returns (MintableToken) {
-        return new COMToken();
+        stageEnds = [
+            uint(stageStarts[0] + _stageLengths[0]), 
+            stageStarts[1] + _stageLengths[1], 
+            stageStarts[2] + _stageLengths[2]
+        ];
     }
 
     function calcEndTime(
@@ -131,7 +127,7 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
         }
     }
 
-    function incStage() public onlyOwner {
+    function incStage() external onlyOwner {
         require(stageEnds[stage] < now);
         require(now < stageStarts[stage+1]);
         stage += 1;
@@ -141,7 +137,7 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
         return stage == StrongBelieversStage;
     }
 
-    function setReference(address participant, address referrer) public onlyOwner {
+    function setReference(address participant, address referrer) external onlyOwner {
         require(participant != address(0));
         require(referrer != address(0));
         require(isActive());
@@ -159,9 +155,8 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
 
     // @return true if the transaction can buy tokens
     function validPurchase() internal view returns (bool) {
-        bool withinCap = weiRaised.add(msg.value) <= hardcap;
         bool aboveMinInvestment = msg.value >= minInvest;
-        return isActive() && withinCap && aboveMinInvestment && !isFinalized && super.validPurchase();
+        return isActive() && aboveMinInvestment && !isFinalized && super.validPurchase();
     }
 
     // @return true if ICO is in one of its ICO stages
@@ -169,11 +164,6 @@ contract ConectumICO is Ownable, RefundableCrowdsale {
         uint start = stageStarts[stage];
         uint end = stageEnds[stage];
         return now >= start && now <= end;
-    }
-
-    function hasEnded() public view returns(bool) {
-        bool capReached = weiRaised >= hardcap;
-        return capReached || super.hasEnded();
     }
 
     function finalization() internal {

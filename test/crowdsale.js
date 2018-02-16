@@ -34,6 +34,7 @@ contract("Crowdsale", (accounts) => {
         this.alice = accounts[2];
         this.bob = accounts[3];
         this.eve = accounts[4];
+        this.token = await Token.new();
         this.crowdsale = await Crowdsale.new(
             this.startTime, 
             ether(1),
@@ -41,8 +42,10 @@ contract("Crowdsale", (accounts) => {
             this.owner,
             [duration.weeks(1), duration.weeks(1), duration.weeks(1)],
             [duration.weeks(1), duration.weeks(1)],
-            [1000, 750, 500]);
-        this.token = Token.at(await this.crowdsale.token());
+            [1000, 750, 500],
+            this.token.address
+        );
+        await this.token.transferOwnership(this.crowdsale.address);
     });
 
     describe('exchange rates', () => {
