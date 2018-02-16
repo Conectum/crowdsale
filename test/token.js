@@ -23,12 +23,12 @@ contract("Token", (accounts) => {
         this.q2 = this.q1 + quarter;
         this.q3 = this.q2 + quarter;
         this.q4 = this.q3 + quarter;
-        this.token = await Token.new(this.releaseDate);
+        this.token = await Token.new();
     });
 
     describe('vesting', () => {
         it('should not release before start', async() => {
-            await this.token.vest(accounts[1], 1000, this.releaseDate, duration.years(1));
+            await this.token.vest(accounts[1], 1000, latestTime() + duration.weeks(1), duration.years(1));
 
             try {
                 await this.token.releaseVested({from: accounts[1]});
