@@ -1,0 +1,27 @@
+{
+  "name": "conectum-ico",
+  "version": "1.0.0",
+  "description": "### Pros & cons of separate vs single crowdsale contract",
+  "main": "truffle-config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Conectum/crowdsale.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Conectum/crowdsale/issues"
+  },
+  "homepage": "https://github.com/Conectum/crowdsale#readme",
+  "dependencies": {
+    "zeppelin-solidity": "git+https://github.com/OpenZeppelin/zeppelin-solidity.git#v1.6.0"
+  }
+}

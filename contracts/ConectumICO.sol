@@ -3,11 +3,11 @@ pragma solidity ^0.4.18;
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/crowdsale/RefundVault.sol';
-import 'zeppelin-solidity/contracts/crowdsale/Crowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/RefundableCrowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/FinalizableCrowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
+import './crowdsale/Crowdsale.sol';
+import './crowdsale/RefundableCrowdsale.sol';
+import './crowdsale/FinalizableCrowdsale.sol';
+import './crowdsale/CappedCrowdsale.sol';
 import './COMToken.sol';
 
 contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
