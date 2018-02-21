@@ -31,7 +31,7 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
     uint[] stageRates;
 
     // current ICO stage index
-    uint stage = 0;
+    uint public stage = 0;
 
     // what time every stage starts
     uint[] stageStarts;
