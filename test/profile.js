@@ -56,5 +56,12 @@ contract("Profile", (accounts) => {
             const gas = await this.crowdsale.setReference.estimateGas(accounts[2], accounts[2]);
             console.log('.setReference: ' + gas);
         });
+
+        it("should setReferenceBatch (10)", async() => {
+            const gas = await this.crowdsale.setReferenceBatch.estimateGas(
+                accounts, accounts
+            );
+            console.log('.setReferenceBatch: ' + gas);
+        });
     });
 });

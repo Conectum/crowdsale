@@ -147,6 +147,17 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
         referredBy[participant] = Referrer(referrer, true);
     }
 
+    function setReferenceBatch(address[] participants, address[] referrers) external onlyOwner {
+        require(participants.length == referrers.length);
+        for (uint i = 0; i < participants.length; i++) {
+            // in order to save gas and since it is used purely for internal reasons:
+            // * no check for whether the referrence was already set
+            // * no check if the address is valid
+            // * no check for the stage state
+            referredBy[participants[i]] = Referrer(referrers[i], true);
+        }
+    }
+
     // Convert Wei to COM tokens
     function getTokenAmount(uint weiAmount) internal view returns(uint) {
         uint rate = stageRates[stage];

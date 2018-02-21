@@ -78,6 +78,26 @@ contract("Crowdsale", (accounts) => {
     });
 
     describe('referral system', async() => {
+        it("should set in batches", async() => {
+            const p = [
+                accounts[0],
+                accounts[1],
+                accounts[2]
+            ];
+            const r = [
+                accounts[2],
+                accounts[0],
+                accounts[1]
+            ];
+            await this.crowdsale.setReferenceBatch(p, r);
+            await increaseTimeTo(this.startTime);
+            await this.crowdsale.sendTransaction({value: ether(1), from: accounts[0]});
+            let pBalance = await this.token.balanceOf.call(accounts[0]);
+            let rBalance = await this.token.balanceOf.call(accounts[2]);
+            assert.equal(pBalance, 1000 * 10 ** DECIMALS);
+            assert.equal(rBalance, 100 * 10 ** DECIMALS);
+        });
+
         it("should assign 10% of the token sale to the referrer", async() => {
             await increaseTimeTo(this.startTime);
             await this.crowdsale.setReference(this.alice, this.bob);
