@@ -127,6 +127,14 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
         stage += 1;
     }
 
+    function getStageStart() external view returns(uint) {
+        return stageStarts[stage];
+    }
+
+    function getStageEnd() external view returns(uint) {
+        return stageEnds[stage];
+    }
+
     function inReferralStage() internal view returns(bool) {
         return stage == StrongBelieversStage;
     }
