@@ -23,10 +23,6 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
     uint constant EarlyAdoptersStage = 1;
     uint constant MainStage = 2;
 
-    // length of every crowdsale stage
-    uint[] stageLengths;
-    // length of breaks of the crowdsale stages
-    uint[] stageBreaks;
     // ETH/COM exchange rates of every crowdsale stage
     uint[] stageRates;
 
@@ -79,8 +75,6 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
         require(_stageBreaks.length + 1 == _stageLengths.length);
 
         stageRates = _stageRates;
-        stageLengths = _stageLengths;
-        stageBreaks = _stageBreaks;
 
         stageStarts = [
             uint(startTime),
