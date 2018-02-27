@@ -19,18 +19,18 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
     }
 
     // ETH/COM exchange rates of every crowdsale stage
-    uint[] stageRates;
+    uint[] internal stageRates;
 
     // what time every stage starts
-    uint[] stageStarts;
+    uint[] internal stageStarts;
     // what time every stage ends
-    uint[] stageEnds;
+    uint[] internal stageEnds;
 
     uint constant minInvest = 0.2 ether;
 
     // users that were referred by others
     mapping (address => Referrer) public referredBy;
-    uint constant refBonusPct = 10;
+    uint constant internal refBonusPct = 10;
 
     /**
     * event for referrer bonus tokens minting
