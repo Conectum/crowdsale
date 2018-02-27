@@ -18,11 +18,6 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
         bool isSet;
     }
 
-    // indexes of different ico stages, mainly for code readability purposes
-    uint constant StrongBelieversStage = 0;
-    uint constant EarlyAdoptersStage = 1;
-    uint constant MainStage = 2;
-
     // ETH/COM exchange rates of every crowdsale stage
     uint[] stageRates;
 
@@ -136,7 +131,7 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
     }
 
     function inReferralStage() internal view returns(bool) {
-        return stage == StrongBelieversStage;
+        return stage == 0;
     }
 
     function setReference(address participant, address referrer) external onlyOwner {
