@@ -58,7 +58,6 @@ contract("Crowdsale", (accounts) => {
 
         it("should cost 1 ETH to get 750 COM tokens at stage one", async() => {
             await increaseTimeTo(this.stageOneEnd + duration.days(1));
-            await this.crowdsale.incStage();
             await increaseTimeTo(this.stageTwoStart);
             await this.crowdsale.sendTransaction({value: ether(1), from: this.alice});
             let balance = (await this.token.balanceOf.call(this.alice)).toNumber();
@@ -67,9 +66,7 @@ contract("Crowdsale", (accounts) => {
 
         it("should cost 1 ETH to get 500 COM tokens at stage one", async() => {
             await increaseTimeTo(this.stageOneEnd + duration.days(1));
-            await this.crowdsale.incStage();
             await increaseTimeTo(this.stageTwoEnd + duration.days(1));
-            await this.crowdsale.incStage();
             await increaseTimeTo(this.stageThreeStart + duration.days(1));
             await this.crowdsale.sendTransaction({value: ether(1), from: this.alice});
             let balance = (await this.token.balanceOf.call(this.alice)).toNumber();
@@ -112,7 +109,6 @@ contract("Crowdsale", (accounts) => {
             await increaseTimeTo(this.startTime);
             await this.crowdsale.setReference(this.alice, this.bob);
             await increaseTimeTo(this.stageOneEnd + duration.days(1));
-            await this.crowdsale.incStage();
             await increaseTimeTo(this.stageTwoStart);
 
             await this.crowdsale.sendTransaction({value: ether(1), from: this.alice});
@@ -136,7 +132,6 @@ contract("Crowdsale", (accounts) => {
 
         it("should only work during the Strong Believers stage", async() => {
             await increaseTimeTo(this.stageOneEnd + duration.days(1));
-            await this.crowdsale.incStage();
             await increaseTimeTo(this.stageTwoStart);
             try {
                 await this.crowdsale.setReference(this.alice, this.bob);
@@ -180,7 +175,7 @@ contract("Crowdsale", (accounts) => {
         });
 
         it("should not accept new investments if the ICO has expired", async() => {
-            await increaseTimeTo(this.endTime);
+            await increaseTimeTo(this.endTime + duration.days(1));
             try {
               await this.crowdsale.sendTransaction({value: ether(1)});
               assert(false, "should revert");

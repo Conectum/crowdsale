@@ -41,11 +41,12 @@ contract("Profile", (accounts) => {
             [1000, 750, 500],
             this.token.address
         );
+        await this.token.transferOwnership(this.crowdsale.address);
     });
 
     describe("COMToken", () => {
         it("should mint", async() => {
-            const gas = await this.token.mint.estimateGas(accounts[1], 1000);
+            const gas = await this.token.mint.estimateGas(accounts[1], 1000, {from: this.crowdsale.address});
             console.log('.mint: ' + gas);
         });
     });
@@ -62,6 +63,13 @@ contract("Profile", (accounts) => {
                 accounts, accounts
             );
             console.log('.setReferenceBatch: ' + gas);
+        });
+
+        it("should buyTokens", async() => {
+            await increaseTimeTo(this.startTime + duration.days(1));
+            const gas = await web3.eth.estimateGas({to: this.crowdsale.address, value: 10**18, from: accounts[1]});
+            // current: 129707
+            console.log('.buyTokens: ' + gas);
         });
     });
 });

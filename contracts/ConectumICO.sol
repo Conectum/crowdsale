@@ -21,9 +21,6 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
     // ETH/COM exchange rates of every crowdsale stage
     uint[] stageRates;
 
-    // current ICO stage index
-    uint public stage = 0;
-
     // what time every stage starts
     uint[] stageStarts;
     // what time every stage ends
@@ -116,29 +113,33 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
         }
     }
 
-    function incStage() external onlyOwner {
-        require(stageEnds[stage] < now);
-        require(now < stageStarts[stage+1]);
-        stage += 1;
+    function getStage() public view returns(uint) {
+        // use 3 instead of stageLengths.length to save gas. we know that there are going to be only three stages.
+        for (uint i = 0; i < 3; i++) {
+            if (stageStarts[i] <= now && now <= stageEnds[i]) {
+                return i;
+            }
+        }
+        revert();
     }
 
     function getStageStart() external view returns(uint) {
-        return stageStarts[stage];
+        return stageStarts[getStage()];
     }
 
     function getStageEnd() external view returns(uint) {
-        return stageEnds[stage];
+        return stageEnds[getStage()];
     }
 
     function inReferralStage() internal view returns(bool) {
-        return stage == 0;
+        return getStage() == 0;
     }
 
     function setReference(address participant, address referrer) external onlyOwner {
         require(participant != address(0));
         require(referrer != address(0));
         require(isActive());
-        require(stage == 0);
+        require(getStage() == 0);
         // the referer can only be set once
         require(!referredBy[participant].isSet);
         referredBy[participant] = Referrer(referrer, true);
@@ -157,7 +158,7 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
 
     // Convert Wei to COM tokens
     function getTokenAmount(uint weiAmount) internal view returns(uint) {
-        uint rate = stageRates[stage];
+        uint rate = stageRates[getStage()];
         return weiAmount.mul(rate);
     }
 
@@ -169,6 +170,7 @@ contract ConectumICO is CappedCrowdsale, RefundableCrowdsale {
 
     // @return true if ICO is in one of its ICO stages
     function isActive() public view returns(bool){
+        uint stage = getStage();
         uint start = stageStarts[stage];
         uint end = stageEnds[stage];
         return now >= start && now <= end;
